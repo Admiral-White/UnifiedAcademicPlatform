@@ -1,0 +1,6 @@
+@UAP.CourseCatalog.API_HostAddress = http://localhost:5232
+
+GET {{UAP.CourseCatalog.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
