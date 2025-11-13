@@ -19,16 +19,24 @@
 	<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.2.1" />
 	<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.11" />
 	<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="8.0.1" />
-	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.6" />
+	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
 	<PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
 	<PackageReference Include="StackExchange.Redis" Version="2.8.16" />
 	<PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
 	<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
+	<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.11" />
 
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Domain\" />
     <Folder Include="HealthChecks\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\UAP.Shared.Infrastructure\UAP.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Shared\UAP.SharedKernel\UAP.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

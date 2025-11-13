@@ -1,9 +1,9 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using UAP.Authentication.API.HealthChecks;
 namespace UAP.Authentication.API.Extensions;
 
@@ -100,11 +100,13 @@ public static class ServiceCollectionExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         var redisConnection = configuration.GetSection("Redis:ConnectionString").Value;
 
+        var consulUrl = configuration.GetSection("Consul:Url").Value ?? "http://localhost:8500";
+        
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "ready", "live" })
             .AddCheck<RedisHealthCheck>("redis", tags: new[] { "ready", "live" })
             .AddCheck<RabbitMQHealthCheck>("rabbitmq", tags: new[] { "ready" })
-            .AddUrlGroup(new Uri("http://localhost:8500"), "consul", tags: new[] { "ready" });
+            .AddUrlGroup(new Uri(consulUrl), "consul", tags: new[] { "ready" });
 
         // Add custom health checks
         services.AddSingleton<DatabaseHealthCheck>();
