@@ -1,10 +1,10 @@
+using System.Linq;
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using System.Linq;
-using System.Text.Json;
 
 namespace UAP.Authentication.API.Extensions;
 
@@ -15,13 +15,14 @@ public static class ApplicationBuilderExtensions
     /// </summary>
     public static IApplicationBuilder UseDevelopmentConfiguration(this IApplicationBuilder app, IWebHostEnvironment env)
     {
-        if (env.IsDevelopment())
+        // Enable Swagger for Development and Docker environments
+        if (env.IsDevelopment() || env.EnvironmentName == "Docker")
         {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "UAP Authentication API v1");
-                options.RoutePrefix = "api-docs";
+                options.RoutePrefix = string.Empty; // Serve at root
                 options.DisplayRequestDuration();
                 options.EnablePersistAuthorization();
             });
