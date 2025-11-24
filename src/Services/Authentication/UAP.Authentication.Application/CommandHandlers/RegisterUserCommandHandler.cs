@@ -12,16 +12,19 @@ namespace UAP.Authentication.Application.CommandHandlers;
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<Guid>>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IRoleRepository _roleRepository;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly IUnitOfWork _unitOfWork;
 
     public RegisterUserCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher<User> passwordHasher,
+        IRoleRepository roleRepository,
         IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
+        _roleRepository = roleRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -30,7 +33,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         // Check if user already exists
         var existingUser = await _userRepository.GetByEmailAsync(request.Email);
         if (existingUser != null)
-            return Result.Failure<Guid>("User with this email already exists");
+            return Result<Guid>.Failure("User with this email already exists") as Result<Guid>;
 
         // Create new user
         var user = new User(request.Email, request.FirstName, request.LastName, request.UserType);
@@ -40,17 +43,22 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         user.SetPassword(passwordHash);
 
         // Add default role based on user type
-        var defaultRole = GetDefaultRole(request.UserType);
-        user.AddRole(defaultRole);
+        var defaultRoleId = GetDefaultRoleId(request.UserType);
+        var defaultRole = await _roleRepository.GetByIdAsync(defaultRoleId, cancellationToken);
+        
+        if (defaultRole != null)
+        {
+            user.AddRole(defaultRoleId);
+        }
 
         // Save user
         await _userRepository.AddAsync(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(user.Id);
+        return Result<Guid>.Success(user.Id);
     }
 
-    private Guid GetDefaultRole(UserType userType)
+    private Guid GetDefaultRoleId(UserType userType)
     {
         return userType switch
         {

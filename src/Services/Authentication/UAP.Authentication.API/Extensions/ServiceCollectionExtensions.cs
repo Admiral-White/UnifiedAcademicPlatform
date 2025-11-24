@@ -1,10 +1,22 @@
 using System.Text;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using UAP.Authentication.API.HealthChecks;
+using UAP.Authentication.Application.Commands;
+using UAP.Authentication.Domain.Entities;
+using UAP.Authentication.Domain.Interfaces;
+using UAP.Authentication.Infrastructure;
+using UAP.Authentication.Infrastructure.Data;
+using UAP.Authentication.Infrastructure.Repositories;
+using UAP.Shared.Infrastructure.Interfaces;
+// using UAP.SharedKernel.Interfaces;
+
 namespace UAP.Authentication.API.Extensions;
 
 
@@ -116,7 +128,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
     
-        /// <summary>
+    /// <summary>
     /// Adds and configures Swagger/OpenAPI with JWT support
     /// </summary>
     public static IServiceCollection AddCustomSwagger(this IServiceCollection services, IConfiguration configuration)
@@ -197,4 +209,115 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+    
+    // New Additions
+    
+    /// <summary>
+    /// Adds and configures Entity Framework Core with SQL Server
+    /// </summary>
+    public static IServiceCollection AddEntityFramework(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+    
+        services.AddDbContext<AuthenticationDbContext>(options =>
+        {
+            options.UseSqlServer(connectionString, sqlOptions =>
+            {
+                sqlOptions.MigrationsAssembly(typeof(AuthenticationDbContext).Assembly.FullName);
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null);
+            });
+        
+            // Enable sensitive data logging only in development
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            {
+                options.EnableSensitiveDataLogging();
+            }
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds and configures application repositories
+    /// </summary>
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        return services;
+    }
+
+    /// <summary>
+    /// Adds and configures MediatR for CQRS pattern
+    /// </summary>
+    public static IServiceCollection AddMediatRServices(this IServiceCollection services)
+    {
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(LoginUserCommand).Assembly));
+        return services;
+    }
+
+    /// <summary>
+    /// Adds and configures Identity services
+    /// </summary>
+    public static IServiceCollection AddIdentityServices(this IServiceCollection services)
+    {
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        return services;
+    }
+    
+    /// <summary>
+    /// Adds and configures MassTransit with RabbitMQ
+    /// </summary>
+    public static IServiceCollection AddMessageBroker(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddMassTransit(busConfig =>
+        {
+            busConfig.SetKebabCaseEndpointNameFormatter();
+        
+            busConfig.UsingRabbitMq((context, config) =>
+            {
+                var rabbitMqHost = configuration.GetSection("RabbitMQ:Host").Value;
+                var rabbitMqUser = configuration.GetSection("RabbitMQ:Username").Value ?? "guest";
+                var rabbitMqPass = configuration.GetSection("RabbitMQ:Password").Value ?? "guest";
+            
+                config.Host(rabbitMqHost, "/", h =>
+                {
+                    h.Username(rabbitMqUser);
+                    h.Password(rabbitMqPass);
+                });
+            
+                config.ConfigureEndpoints(context);
+            });
+        });
+
+        return services;
+    }
+    
+    
+    /// <summary>
+    /// Adds application services (MediatR, repositories, etc.)
+    /// </summary>
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    {
+        // Add MediatR
+        services.AddMediatR(cfg => 
+            cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommand).Assembly));
+    
+        // Add repositories
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+    
+        // Add password hasher
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+    
+        return services;
+    }
 }
+
+        
+    

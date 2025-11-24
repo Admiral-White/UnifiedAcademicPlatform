@@ -14,7 +14,7 @@ public class Role : AggregateRoot<Guid>
 
     private Role() { }
 
-    public Role(string name, string description, bool isSystemRole = false)
+    public Role(Guid guid, string name, string description, bool isSystemRole = false)
     {
         Id = Guid.NewGuid();
         Name = name;

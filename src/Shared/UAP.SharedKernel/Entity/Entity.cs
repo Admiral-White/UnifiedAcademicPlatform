@@ -15,7 +15,7 @@ namespace UAP.SharedKernel.Entity
     /// </summary>
     public abstract class Entity<TId> : IEquatable<Entity<TId>>
     {
-        public TId Id { get; protected set; }
+        public TId Id { get; set; }
 
         private readonly List<IDomainEvent> _domainEvents = new();
 

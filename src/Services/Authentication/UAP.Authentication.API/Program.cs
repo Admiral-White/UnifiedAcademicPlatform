@@ -31,7 +31,11 @@ try
     builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddCustomHealthChecks(builder.Configuration);
     builder.Services.AddRedisCaching(builder.Configuration);
-
+    
+    // New Service Additions
+    builder.Services.AddEntityFramework(builder.Configuration);
+    builder.Services.AddMessageBroker(builder.Configuration);
+    builder.Services.AddApplicationServices();
 // Add Health Checks old impl
     /*builder.Services.AddHealthChecks()
         .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))

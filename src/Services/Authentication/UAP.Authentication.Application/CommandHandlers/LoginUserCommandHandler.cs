@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using UAP.Authentication.Application.Commands;
 using UAP.Authentication.Domain.Entities;
 using UAP.Authentication.Domain.Interfaces;
+using UAP.Shared.Infrastructure.Interfaces;
 using UAP.SharedKernel.Common;
 
 namespace UAP.Authentication.Application.CommandHandlers;
@@ -18,16 +19,19 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Result<
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly IConfiguration _configuration;
     private readonly IRoleRepository _roleRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public LoginUserCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher<User> passwordHasher,
         IConfiguration configuration,
+        IUnitOfWork unitOfWork,
         IRoleRepository roleRepository)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _configuration = configuration;
+        _unitOfWork = unitOfWork;
         _roleRepository = roleRepository;
     }
 
@@ -46,6 +50,7 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Result<
         // Update last login
         user.UpdateLastLogin();
         await _userRepository.UpdateAsync(user);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Generate JWT token
         var token = await GenerateJwtToken(user);
