@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace UAP.SharedKernel.Common
 {
@@ -10,10 +6,9 @@ namespace UAP.SharedKernel.Common
     /// Marker interface for domain events
     /// Domain events represent something that happened in the domain that domain experts care about
     /// </summary>
-    public interface IDomainEvent
+    public interface IDomainEvent : INotification
     {
         DateTime OccurredOn { get; }
         Guid EventId { get; }
-
     }
 }

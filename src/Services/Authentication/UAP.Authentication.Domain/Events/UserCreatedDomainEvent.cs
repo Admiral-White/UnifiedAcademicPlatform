@@ -1,10 +1,9 @@
-using MediatR;
 using UAP.Authentication.Domain.Enums;
 using UAP.SharedKernel.Common;
 
 namespace UAP.Authentication.Domain.Events;
 
-public class UserCreatedDomainEvent : DomainEvent, INotification
+public class UserCreatedDomainEvent : DomainEvent
 {
     public Guid UserId { get; }
     public string Email { get; }
