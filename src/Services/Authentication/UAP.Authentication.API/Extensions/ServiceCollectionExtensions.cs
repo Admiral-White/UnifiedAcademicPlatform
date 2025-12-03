@@ -1,5 +1,6 @@
 using System.Text;
 using MassTransit;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,9 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using UAP.Authentication.API.HealthChecks;
 using UAP.Authentication.Application.Commands;
+using UAP.Authentication.Application.EventHandlers;
 using UAP.Authentication.Domain.Entities;
+using UAP.Authentication.Domain.Events;
 using UAP.Authentication.Domain.Interfaces;
 using UAP.Authentication.Infrastructure;
 using UAP.Authentication.Infrastructure.Data;
@@ -274,9 +277,36 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddMessageBroker(this IServiceCollection services, IConfiguration configuration)
     {
+        /*services.AddMassTransit(busConfig =>
+        {
+            busConfig.SetKebabCaseEndpointNameFormatter();
+        
+            busConfig.UsingRabbitMq((context, config) =>
+            {
+                var rabbitMqHost = configuration.GetSection("RabbitMQ:Host").Value;
+                var rabbitMqUser = configuration.GetSection("RabbitMQ:Username").Value ?? "guest";
+                var rabbitMqPass = configuration.GetSection("RabbitMQ:Password").Value ?? "guest";
+            
+                config.Host(rabbitMqHost, "/", h =>
+                {
+                    h.Username(rabbitMqUser);
+                    h.Password(rabbitMqPass);
+                });
+            
+                config.ConfigureEndpoints(context);
+            });
+        });
+
+        return services;*/
+        
         services.AddMassTransit(busConfig =>
         {
             busConfig.SetKebabCaseEndpointNameFormatter();
+        
+            // Add domain event handlers (they will be handled by MediatR)
+            services.AddScoped<INotificationHandler<UserCreatedDomainEvent>, UserCreatedDomainEventHandler>();
+            services.AddScoped<INotificationHandler<UserLoggedInDomainEvent>, UserLoggedInDomainEventHandler>();
+            services.AddScoped<INotificationHandler<UserDeactivatedDomainEvent>, UserDeactivatedDomainEventHandler>();
         
             busConfig.UsingRabbitMq((context, config) =>
             {
