@@ -1,5 +1,7 @@
 using MassTransit;
 using MediatR;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using UAP.CourseCatalog.Application.Commands;
 using UAP.CourseCatalog.Application.EventHandlers;
 using UAP.CourseCatalog.Domain.Events;
@@ -10,9 +12,9 @@ using UAP.Shared.Infrastructure.Interfaces;
 
 namespace UAP.CourseCatalog.API.Extensions;
 
-public class ServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         // Add MediatR
         services.AddMediatR(cfg => 
@@ -28,7 +30,7 @@ public class ServiceCollectionExtensions
         return services;
     }
     
-    public static IServiceCollection AddMessageBroker(IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMessageBroker(this IServiceCollection services, IConfiguration configuration)
     {
         /*services.AddMassTransit(busConfig =>
         {

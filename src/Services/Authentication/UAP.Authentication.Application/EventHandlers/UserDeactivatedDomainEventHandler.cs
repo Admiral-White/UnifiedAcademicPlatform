@@ -37,14 +37,11 @@ public class UserDeactivatedDomainEventHandler : INotificationHandler<UserDeacti
                 return;
             }
 
-            var integrationEvent = new UserLoggedInIntegrationEvent.UserDeactivatedIntegrationEvent(
+            var integrationEvent = new UserDeactivatedIntegrationEvent(
                 user.Id,
                 user.Email,
-                user.FirstName,
-                user.LastName,
                 user.UserType.ToString(),
-                notification.DeactivatedAt,
-                "User account deactivated" // In real scenario, this would come from the command
+                notification.DeactivatedAt
             );
 
             await _publishEndpoint.Publish(integrationEvent, cancellationToken);

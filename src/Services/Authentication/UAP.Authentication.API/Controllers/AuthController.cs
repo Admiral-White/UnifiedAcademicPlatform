@@ -8,7 +8,7 @@ using UAP.Shared.Contracts.Common;
 namespace UAP.Authentication.API.Controllers;
 
 [ApiController]
-[Route(ApiRoutes.Authentication.Login)]
+[Route("api/v1/auth")]
 public class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;

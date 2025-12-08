@@ -7,7 +7,7 @@ using UAP.Shared.Infrastructure.Interfaces;
 
 namespace UAP.CourseCatalog.Application.EventHandlers;
 
-public class UserDeactivatedIntegrationEventHandler : IConsumer<UserLoggedInIntegrationEvent.UserDeactivatedIntegrationEvent>
+public class UserDeactivatedIntegrationEventHandler : IConsumer<UserDeactivatedIntegrationEvent>
 {
     private readonly ILogger<UserDeactivatedIntegrationEventHandler> _logger;
     private readonly ICourseRepository _courseRepository;
@@ -23,7 +23,7 @@ public class UserDeactivatedIntegrationEventHandler : IConsumer<UserLoggedInInte
         _unitOfWork = unitOfWork;
     }
 
-    public async Task Consume(ConsumeContext<UserLoggedInIntegrationEvent.UserDeactivatedIntegrationEvent> context)
+    public async Task Consume(ConsumeContext<UserDeactivatedIntegrationEvent> context)
     {
         var message = context.Message;
         
