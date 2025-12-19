@@ -333,18 +333,12 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        // Add MediatR
         services.AddMediatR(cfg => 
             cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommand).Assembly));
-    
-        // Add repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-    
-        // Add password hasher
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-    
         return services;
     }
 }

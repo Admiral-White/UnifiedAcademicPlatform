@@ -46,8 +46,11 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
                     return capacityResult;
             }
 
-            // Update borrowable status
-            // Note: In a real scenario, we might have business rules for this
+            // Update borrowable status if provided
+            if (course.IsBorrowable != request.IsBorrowable)
+            {
+                course.UpdateBorrowableStatus(request.IsBorrowable);
+            }
 
             await _courseRepository.UpdateAsync(course, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
