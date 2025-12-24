@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using UAP.CourseCatalog.Application.Queries;
+using UAP.CourseCatalog.Application.DTOs;
 using UAP.CourseCatalog.Domain.Entities;
 using UAP.CourseCatalog.Domain.Interfaces;
 using UAP.SharedKernel.Common;
@@ -72,18 +73,18 @@ public class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, Result<Li
                 CurrentEnrollment = course.CurrentEnrollment,
                 IsActive = course.IsActive,
                 IsBorrowable = course.IsBorrowable,
-                OfferingSemester = course.OfferingSemester.ToString(),
+                OfferingSemester = course.OfferingSemester,
                 AcademicYear = course.AcademicYear,
-                CreatedOn = course.CreatedOn,
-                ModifiedOn = course.ModifiedOn
+                CreatedAt = course.CreatedOn,
+                UpdatedAt = course.ModifiedOn
             }).ToList();
 
-            return Result<List<CourseDto>>.Success(courseDtos);
+            return Result.Success(courseDtos);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving courses");
-            return Result<List<CourseDto>>.Failure("An error occurred while retrieving courses") as Result<List<CourseDto>>;
+            return Result.Failure<List<CourseDto>>("An error occurred while retrieving courses");
         }
     }
 }

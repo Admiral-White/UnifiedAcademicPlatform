@@ -110,7 +110,7 @@ public class CourseCatalogDbContext : BaseDbContext
                 .HasForeignKey(p => p.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne<Department>()
+            entity.HasOne(c => c.Department)
                 .WithMany(d => d.Courses)
                 .HasForeignKey(c => c.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -159,7 +159,7 @@ public class CourseCatalogDbContext : BaseDbContext
 
             // Relationships
             entity.HasMany(d => d.Courses)
-                .WithOne()
+                .WithOne(c => c.Department)
                 .HasForeignKey(c => c.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
@@ -201,8 +201,8 @@ public class CourseCatalogDbContext : BaseDbContext
     {
         // Seed departments
         var computerScienceDept = new Department(
-            Guid.Parse("11111111-1111-1111-1111-111111111111"),
             "CS",
+            "Computer Science Department",
             "Computer Science Department",
             Guid.Parse("11111111-1111-1111-1111-111111111111"))
         {
@@ -210,8 +210,8 @@ public class CourseCatalogDbContext : BaseDbContext
         };
 
         var mathematicsDept = new Department(
-            Guid.Parse("22222222-2222-2222-2222-222222222222"),
             "MATH",
+            "Mathematics Department",
             "Mathematics Department",
             Guid.Parse("22222222-2222-2222-2222-222222222222"))
         {
@@ -219,8 +219,8 @@ public class CourseCatalogDbContext : BaseDbContext
         };
 
         var physicsDept = new Department(
-            Guid.Parse("33333333-3333-3333-3333-333333333333"),
             "PHYS",
+            "Physics Department",
             "Physics Department",
             Guid.Parse("33333333-3333-3333-3333-333333333333"))
         {
@@ -295,10 +295,78 @@ public class CourseCatalogDbContext : BaseDbContext
         };
 
         modelBuilder.Entity<Course>().HasData(
-            programmingCourse,
-            dataStructuresCourse,
-            calculusCourse,
-            physicsCourse
+            new
+            {
+                Id = programmingCourse.Id,
+                CourseCode = programmingCourse.CourseCode,
+                Title = programmingCourse.Title,
+                Description = programmingCourse.Description,
+                Credits = programmingCourse.Credits,
+                DepartmentId = programmingCourse.DepartmentId,
+                CoordinatorId = programmingCourse.CoordinatorId,
+                MaxCapacity = programmingCourse.MaxCapacity,
+                CurrentEnrollment = 0,
+                IsActive = true,
+                IsBorrowable = programmingCourse.IsBorrowable,
+                OfferingSemester = programmingCourse.OfferingSemester,
+                AcademicYear = programmingCourse.AcademicYear,
+                CreatedOn = DateTime.UtcNow,
+                ModifiedOn = DateTime.UtcNow
+            },
+            new
+            {
+                Id = dataStructuresCourse.Id,
+                CourseCode = dataStructuresCourse.CourseCode,
+                Title = dataStructuresCourse.Title,
+                Description = dataStructuresCourse.Description,
+                Credits = dataStructuresCourse.Credits,
+                DepartmentId = dataStructuresCourse.DepartmentId,
+                CoordinatorId = dataStructuresCourse.CoordinatorId,
+                MaxCapacity = dataStructuresCourse.MaxCapacity,
+                CurrentEnrollment = 0,
+                IsActive = true,
+                IsBorrowable = dataStructuresCourse.IsBorrowable,
+                OfferingSemester = dataStructuresCourse.OfferingSemester,
+                AcademicYear = dataStructuresCourse.AcademicYear,
+                CreatedOn = DateTime.UtcNow,
+                ModifiedOn = DateTime.UtcNow
+            },
+            new
+            {
+                Id = calculusCourse.Id,
+                CourseCode = calculusCourse.CourseCode,
+                Title = calculusCourse.Title,
+                Description = calculusCourse.Description,
+                Credits = calculusCourse.Credits,
+                DepartmentId = calculusCourse.DepartmentId,
+                CoordinatorId = calculusCourse.CoordinatorId,
+                MaxCapacity = calculusCourse.MaxCapacity,
+                CurrentEnrollment = 0,
+                IsActive = true,
+                IsBorrowable = calculusCourse.IsBorrowable,
+                OfferingSemester = calculusCourse.OfferingSemester,
+                AcademicYear = calculusCourse.AcademicYear,
+                CreatedOn = DateTime.UtcNow,
+                ModifiedOn = DateTime.UtcNow
+            },
+            new
+            {
+                Id = physicsCourse.Id,
+                CourseCode = physicsCourse.CourseCode,
+                Title = physicsCourse.Title,
+                Description = physicsCourse.Description,
+                Credits = physicsCourse.Credits,
+                DepartmentId = physicsCourse.DepartmentId,
+                CoordinatorId = physicsCourse.CoordinatorId,
+                MaxCapacity = physicsCourse.MaxCapacity,
+                CurrentEnrollment = 0,
+                IsActive = true,
+                IsBorrowable = physicsCourse.IsBorrowable,
+                OfferingSemester = physicsCourse.OfferingSemester,
+                AcademicYear = physicsCourse.AcademicYear,
+                CreatedOn = DateTime.UtcNow,
+                ModifiedOn = DateTime.UtcNow
+            }
         );
 
         // Seed prerequisites (Data Structures requires Programming)

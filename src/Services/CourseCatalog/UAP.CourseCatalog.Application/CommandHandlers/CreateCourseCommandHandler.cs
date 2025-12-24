@@ -36,22 +36,22 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
             // Check if the course code already exists
             var existingCourse = await _courseRepository.GetByCodeAsync(request.CourseCode, cancellationToken);
             if (existingCourse != null)
-                return Result<Guid>.Failure($"Course with code {request.CourseCode} already exists") as Result<Guid>;
+                return Result.Failure<Guid>($"Course with code {request.CourseCode} already exists");
 
             // Verify department exists and is active
             var department = await _departmentRepository.GetByIdAsync(request.DepartmentId, cancellationToken);
             if (department == null)
-                return Result<Guid>.Failure("Department not found") as Result<Guid>;
+                return Result.Failure<Guid>("Department not found");
             if (!department.IsActive)
-                return Result<Guid>.Failure("Department is not active") as Result<Guid>;
+                return Result.Failure<Guid>("Department is not active");
 
             // Validate credits
             if (request.Credits <= 0)
-                return Result<Guid>.Failure("Credits must be positive") as Result<Guid>;
+                return Result.Failure<Guid>("Credits must be positive");
 
             // Validate capacity
             if (request.MaxCapacity <= 0)
-                return Result<Guid>.Failure("Max capacity must be positive") as Result<Guid>;
+                return Result.Failure<Guid>("Max capacity must be positive");
 
             // Create course
             var course = new Course(
@@ -92,12 +92,12 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
 
             _logger.LogInformation("Course created successfully: {CourseId} - {CourseCode}", course.Id, course.CourseCode);
             
-            return Result<Guid>.Success(course.Id);
+            return Result.Success(course.Id);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating course: {CourseCode}", request.CourseCode);
-            return Result<Guid>.Failure("An error occurred while creating the course") as Result<Guid>;
+            return Result.Failure<Guid>("An error occurred while creating the course");
         }
     }
 }

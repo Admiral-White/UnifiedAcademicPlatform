@@ -142,6 +142,12 @@ public class Course : AggregateRoot<Guid>
     {
         return _prerequisites.Any(p => p.PrerequisiteCourseId == courseId);
     }
+
+    public void UpdateBorrowableStatus(bool isBorrowable)
+    {
+        IsBorrowable = isBorrowable;
+        AddDomainEvent(new CourseUpdatedDomainEvent(Id, CourseCode, Title));
+    }
 }
 
 public class Prerequisite : Entity<Guid>

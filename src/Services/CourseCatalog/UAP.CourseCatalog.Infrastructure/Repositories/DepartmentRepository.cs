@@ -96,4 +96,9 @@ public class DepartmentRepository : IDepartmentRepository
         var normalizedCode = code?.ToUpper() ?? throw new ArgumentNullException(nameof(code));
         return await _context.Departments.AnyAsync(d => d.Code == normalizedCode, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Department>> GetActiveAsync(CancellationToken cancellationToken = default)
+    {
+        return await GetActiveDepartmentsAsync(cancellationToken);
+    }
 }

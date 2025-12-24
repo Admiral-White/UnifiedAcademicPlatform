@@ -80,10 +80,10 @@ public class Department : AggregateRoot<Guid>
 
     private Department() { }
 
-    public Department(Guid code, string name, string description, Guid headOfDepartmentId)
+    public Department(string code, string name, string description, Guid headOfDepartmentId)
     {
         Id = Guid.NewGuid();
-        Code = code.ToString().ToUpper() ?? throw new ArgumentNullException(nameof(code));
+        Code = code?.ToUpper() ?? throw new ArgumentNullException(nameof(code));
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Description = description;
         HeadOfDepartmentId = headOfDepartmentId;

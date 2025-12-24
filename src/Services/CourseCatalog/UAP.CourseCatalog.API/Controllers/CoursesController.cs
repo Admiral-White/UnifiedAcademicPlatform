@@ -8,7 +8,7 @@ using UAP.Shared.Contracts.Common;
 namespace UAP.CourseCatalog.API.Controllers;
 
 [ApiController]
-[Route(ApiRoutes.Courses.GetAll)]
+[Route("api/v1/courses")]
 public class CoursesController : ControllerBase
 {
     private readonly IMediator _mediator;

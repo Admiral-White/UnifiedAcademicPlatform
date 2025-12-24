@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using UAP.CourseCatalog.Application.Queries;
+using UAP.CourseCatalog.Application.DTOs;
 using UAP.CourseCatalog.Domain.Interfaces;
 using UAP.SharedKernel.Common;
 
@@ -25,7 +26,7 @@ public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, Result<Cour
 
             var course = await _courseRepository.GetByIdWithDetailsAsync(request.CourseId, cancellationToken);
             if (course == null)
-                return Result<CourseDto>.Failure("Course not found") as Result<CourseDto>;
+                return Result.Failure<CourseDto>("Course not found");
 
             var courseDto = new CourseDto
             {
@@ -42,10 +43,10 @@ public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, Result<Cour
                 CurrentEnrollment = course.CurrentEnrollment,
                 IsActive = course.IsActive,
                 IsBorrowable = course.IsBorrowable,
-                OfferingSemester = course.OfferingSemester.ToString(),
+                OfferingSemester = course.OfferingSemester,
                 AcademicYear = course.AcademicYear,
-                CreatedOn = course.CreatedOn,
-                ModifiedOn = course.ModifiedOn,
+                CreatedAt = course.CreatedOn,
+                UpdatedAt = course.ModifiedOn,
                 Prerequisites = course.Prerequisites.Select(p => new PrerequisiteDto
                 {
                     CourseId = p.PrerequisiteCourseId,
@@ -54,12 +55,12 @@ public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, Result<Cour
                 }).ToList()
             };
 
-            return Result<CourseDto>.Success(courseDto);
+            return Result.Success(courseDto);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving course: {CourseId}", request.CourseId);
-            return Result<CourseDto>.Failure("An error occurred while retrieving the course") as Result<CourseDto>;
+            return Result.Failure<CourseDto>("An error occurred while retrieving the course");
         }
     }
 }

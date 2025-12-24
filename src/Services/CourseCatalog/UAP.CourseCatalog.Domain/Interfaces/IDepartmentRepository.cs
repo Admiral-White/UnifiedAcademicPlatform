@@ -38,4 +38,18 @@ public interface IDepartmentRepository : IRepository<Department>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if a department exists with the code, otherwise false</returns>
     Task<bool> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all departments (active and inactive)
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of all departments</returns>
+    Task<IReadOnlyList<Department>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all active departments (alias for GetActiveDepartmentsAsync)
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of active departments</returns>
+    Task<IReadOnlyList<Department>> GetActiveAsync(CancellationToken cancellationToken = default);
 }

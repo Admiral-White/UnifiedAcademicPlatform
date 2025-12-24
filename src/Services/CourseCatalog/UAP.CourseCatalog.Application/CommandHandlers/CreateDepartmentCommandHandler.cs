@@ -33,15 +33,15 @@ public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCo
             // Check if department code already exists
             var existingDepartment = await _departmentRepository.GetByCodeAsync(request.Code, cancellationToken);
             if (existingDepartment != null)
-                return Result<Guid>.Failure($"Department with code {request.Code} already exists") as Result<Guid>;
+                return Result.Failure<Guid>($"Department with code {request.Code} already exists");
 
             // Validate inputs
             if (string.IsNullOrWhiteSpace(request.Name))
-                return Result<Guid>.Failure("Department name is required") as Result<Guid>;
+                return Result.Failure<Guid>("Department name is required");
 
             // Create department
             var department = new Department(
-                new Guid(request.Code),
+                request.Code,
                 request.Name,
                 request.Description,
                 request.HeadOfDepartmentId
@@ -53,12 +53,12 @@ public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCo
 
             _logger.LogInformation("Department created successfully: {DepartmentId} - {Code}", department.Id, department.Code);
             
-            return Result<Guid>.Success(department.Id);
+            return Result.Success(department.Id);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating department: {Code}", request.Code);
-            return Result<Guid>.Failure("An error occurred while creating the department") as Result<Guid>;
+            return Result.Failure<Guid>("An error occurred while creating the department");
         }
     }
 }
