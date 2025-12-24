@@ -44,57 +44,6 @@ public class CourseCreatedIntegrationEvent : BaseIntegrationEvent
     }
 }
 
-public class CourseUpdatedIntegrationEvent : BaseIntegrationEvent
-{
-    public Guid CourseId { get; set; }
-    public string CourseCode { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public int Credits { get; set; }
-    public DateTime UpdatedAt { get; set; }
-
-    public CourseUpdatedIntegrationEvent(
-        Guid courseId,
-        string courseCode,
-        string title,
-        string description,
-        int credits,
-        DateTime updatedAt)
-    {
-        CourseId = courseId;
-        CourseCode = courseCode;
-        Title = title;
-        Description = description;
-        Credits = credits;
-        UpdatedAt = updatedAt;
-    }
-}
-
-public class CourseCapacityUpdatedIntegrationEvent : BaseIntegrationEvent
-{
-    public Guid CourseId { get; set; }
-    public string CourseCode { get; set; }
-    public int MaxCapacity { get; set; }
-    public int CurrentEnrollment { get; set; }
-    public int AvailableSlots { get; set; }
-    public DateTime UpdatedAt { get; set; }
-
-    public CourseCapacityUpdatedIntegrationEvent(
-        Guid courseId,
-        string courseCode,
-        int maxCapacity,
-        int currentEnrollment,
-        DateTime updatedAt)
-    {
-        CourseId = courseId;
-        CourseCode = courseCode;
-        MaxCapacity = maxCapacity;
-        CurrentEnrollment = currentEnrollment;
-        AvailableSlots = maxCapacity - currentEnrollment;
-        UpdatedAt = updatedAt;
-    }
-}
-
 public class CourseFullIntegrationEvent : BaseIntegrationEvent
 {
     public Guid CourseId { get; set; }
