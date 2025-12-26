@@ -1,11 +1,11 @@
 using Serilog;
 using UAP.Authentication.API.Extensions;
 using UAP.Authentication.API.Middleware;
+using UAP.Shared.Infrastructure.Middleware;
 
 // Create the logger configuration
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.File("logs/authentication-service-.txt", rollingInterval: RollingInterval.Day)
     .CreateBootstrapLogger();
 
 try
@@ -16,9 +16,7 @@ try
     builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .WriteTo.Console()
-        .WriteTo.File("logs/authentication-service-.txt", rollingInterval: RollingInterval.Day));
+        .Enrich.FromLogContext());
 
 // Add services to the container
     builder.Services.AddControllers();
@@ -76,6 +74,9 @@ try
     
     app.UseHttpsRedirection();
     app.UseRouting();
+    
+    // API Key Authentication for service-to-service calls
+    app.UseApiKeyAuthentication();
     
     // Authentication & Authorization
     app.UseAuthentication();
