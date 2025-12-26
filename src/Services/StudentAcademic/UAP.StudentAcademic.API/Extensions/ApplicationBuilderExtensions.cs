@@ -1,0 +1,100 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
+
+namespace UAP.StudentAcademic.API.Extensions;
+
+public static class ApplicationBuilderExtensions
+{
+    public static IApplicationBuilder UseDevelopmentConfiguration(this IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment() || env.EnvironmentName == "Docker")
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "UAP StudentAcademic API v1");
+                options.RoutePrefix = string.Empty;
+                options.DisplayRequestDuration();
+                options.EnablePersistAuthorization();
+            });
+
+            app.UseCors("AllowAll");
+        }
+        else
+        {
+            app.UseCors("ProductionCors");
+        }
+
+        return app;
+    }
+    
+    public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
+    {
+        app.Use(async (HttpContext context, RequestDelegate next) =>
+        {
+            context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+            context.Response.Headers.Add("X-Frame-Options", "DENY");
+            context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+            context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
+            
+            await next(context);
+        });
+
+        return app;
+    }
+    
+    public static IApplicationBuilder UseStructuredLogging(this IApplicationBuilder app)
+    {
+        app.UseSerilogRequestLogging(options =>
+        {
+            options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+            options.GetLevel = (httpContext, elapsed, ex) =>
+            {
+                if (ex != null || httpContext.Response.StatusCode > 499)
+                    return Serilog.Events.LogEventLevel.Error;
+                if (elapsed > 1000)
+                    return Serilog.Events.LogEventLevel.Warning;
+                return Serilog.Events.LogEventLevel.Information;
+            };
+        });
+
+        return app;
+    }
+    
+    public static IApplicationBuilder UseHealthCheckEndpoints(this IApplicationBuilder app)
+    {
+        app.UseHealthChecks("/health", new HealthCheckOptions
+        {
+            Predicate = _ => true,
+            ResponseWriter = async (context, report) =>
+            {
+                context.Response.ContentType = "application/json";
+                var response = new
+                {
+                    status = report.Status.ToString(),
+                    checks = report.Entries.Select(e => new
+                    {
+                        name = e.Key,
+                        status = e.Value.Status.ToString(),
+                        description = e.Value.Description,
+                        duration = e.Value.Duration
+                    }),
+                    totalDuration = report.TotalDuration
+                };
+                await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
+            }
+        });
+
+        app.UseHealthChecks("/health/ready", new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("ready")
+        });
+
+        app.UseHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("live")
+        });
+
+        return app;
+    }
+}
